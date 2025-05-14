@@ -1,0 +1,2 @@
+aliveli,1001,Muz,2,30
+ayseyil,1002,Elma,5,50
