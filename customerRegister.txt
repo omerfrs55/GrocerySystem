@@ -1,2 +1,3 @@
 Ali,Veli,aliveli,1234,100
-Ayşe,Yılmaz,ayseyil,abcd,200
+Ayşe,Yılmaz,ayseyil,abcd,200samet,erdoğan,samet,3636,0
+samet,erdoğan,samett,3636,455
