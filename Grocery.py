@@ -68,10 +68,11 @@ def musteri_kayit():
     if var_mi:
         print("This username is already taken! / Bu kullanıcı adı zaten alınmış!")  # EN: Username taken message // TR: Kullanıcı adı alınmış mesajı
         kasiyer_menu()  # EN: Go back to cashier menu // TR: Kasiyer menüsüne dön
+
     else:
         # Save new customer with balance / Yeni müşteriyi bakiyesiyle kaydet  # EN: Save new customer // TR: Yeni müşteriyi kaydet
         with open(dosya_dict['customer'], 'a', encoding='utf-8') as f:
-            f.write(ad + ',' + soyad + ',' + kullanici_adi + ',' + sifre + ',' + bakiye + '\n')  # EN: Write customer info // TR: Müşteri bilgisini yaz
+           f.write(f"{ad},{soyad},{kullanici_adi},{sifre},{bakiye}\n")  # EN: Write customer info // TR: Müşteri bilgisini yaz
         print("Customer registered successfully! / Müşteri başarıyla kaydedildi!")  # EN: Registration success // TR: Kayıt başarılı
         kasiyer_menu()  # EN: Go back to cashier menu // TR: Kasiyer menüsüne dön
 
@@ -118,7 +119,7 @@ def musteri_menu(kullanici_adi):  # EN: Customer menu for logged-in user // TR: 
     elif secim == '5':
         musteri_alisveris_gecmisi(kullanici_adi)  # EN: Show purchase history // TR: Alışveriş geçmişini göster
     elif secim == '6':
-        musteri_minigame_scoreboard()  # EN: Show minigame scoreboard // TR: Mini oyun skor tablosunu göster
+        musteri_minigame_scoreboard(kullanici_adi)  # EN: Show minigame scoreboard // TR: Mini oyun skor tablosunu göster
     else:
         ana_menu()  # EN: Go back to main menu // TR: Ana menüye dön
 
@@ -316,7 +317,7 @@ def musteri_minigame_menu(kullanici_adi):
     if secim == '1':
         musteri_minigame_oyna(kullanici_adi)
     elif secim == '2':
-        musteri_minigame_scoreboard()
+        musteri_minigame_scoreboard(kullanici_adi)
     else:
         musteri_menu(kullanici_adi)
 
@@ -385,7 +386,7 @@ def skor_guncelle(kullanici_adi, sonuc):
 
 # Skor tablosunu göster
 # Show scoreboard
-def musteri_minigame_scoreboard():
+def musteri_minigame_scoreboard(kullanici_adi):
     print("\n--- Minigame Scoreboard / Mini Oyun Skor Tablosu ---")
     try:
         with open(dosya_dict['scoreboard'], 'r', encoding='utf-8') as f:
@@ -399,6 +400,9 @@ def musteri_minigame_scoreboard():
         parcalar = satir.strip().split(',')
         if len(parcalar) > 2:
             print(f"User: {parcalar[0]}, Score: {parcalar[1]}, Last Game: {parcalar[2]} / Kullanıcı: {parcalar[0]}, Skor: {parcalar[1]}, Son Oyun: {parcalar[2]}")
+            musteri_minigame_menu(kullanici_adi)
+
+
 
 # Son 2 haftada kupon aldı mı kontrol et
 # Check if user got a coupon in last 2 weeks
