@@ -1,3 +1,8 @@
+from cryptography.fernet import Fernet
+#şifre leme için gerekli kütüphane
+# Encryption key for Fernet  # EN: Encryption key for Fernet // TR: Fernet için şifreleme anahtarı
+key = b'HQ8Q0Tf71laVCu-ACno2d34sBYYEqM34V5d-efdhyo4='
+cipher = Fernet(key)
 # Grocery System and Storage Main File  # Main file for the grocery system
 # Market Sistemi ve Depolama Ana Dosyası  # Turkish title
 
@@ -56,6 +61,7 @@ def musteri_kayit():
     soyad = input("Surname (Soyad): ")  # Get surname
     kullanici_adi = input("Username (Kullanıcı Adı): ")  # Get username
     sifre = input("Password (Şifre): ")  # Get password
+    sifre_encoded = cipher.encrypt(sifre.encode()).decode()  # Şifreyi şifrele ve stringe çevir
     bakiye = '0'  # New customers start with 0 balance
     # Check if username exists / Kullanıcı adı var mı kontrol et  # EN: Check if username exists // TR: Kullanıcı adı var mı kontrol et
     with open(dosya_dict['customer'], 'r', encoding='utf-8') as f:
@@ -72,7 +78,7 @@ def musteri_kayit():
     else:
         # Save new customer with balance / Yeni müşteriyi bakiyesiyle kaydet  # EN: Save new customer // TR: Yeni müşteriyi kaydet
         with open(dosya_dict['customer'], 'a', encoding='utf-8') as f:
-           f.write(f"{ad},{soyad},{kullanici_adi},{sifre},{bakiye}\n")  # EN: Write customer info // TR: Müşteri bilgisini yaz
+           f.write(f"{ad},{soyad},{kullanici_adi},{sifre_encoded},{bakiye}\n")  # EN: Write customer info // TR: Müşteri bilgisini yaz
         print("Customer registered successfully! / Müşteri başarıyla kaydedildi!")  # EN: Registration success // TR: Kayıt başarılı
         kasiyer_menu()  # EN: Go back to cashier menu // TR: Kasiyer menüsüne dön
 
@@ -87,14 +93,21 @@ def musteri_giris_menu():
     giris_basarili = False  # Login success flag
     for satir in satirlar:
         bilgiler = satir.strip().split(',')  # Split by comma
-        if len(bilgiler) > 3 and bilgiler[2] == kullanici_adi and bilgiler[3] == sifre:
-            giris_basarili = True  # Set login success
+        if len(bilgiler) > 3 and bilgiler[2] == kullanici_adi:
+            try:
+                sifre_cozulmus = cipher.decrypt(bilgiler[3].encode()).decode()  # Şifre çözülür
+                if sifre == sifre_cozulmus:
+                    giris_basarili = True
+                    break
+            except:
+                continue  # Şifre çözülmezse sıradaki satıra geç
+
     if giris_basarili:
-        print("Login successful! / Giriş başarılı!")  # Print login success
-        musteri_menu(kullanici_adi)  # Go to customer menu
+        print("Login successful! / Giriş başarılı!")
+        musteri_menu(kullanici_adi)
     else:
-        print("Wrong username or password! / Hatalı kullanıcı adı veya şifre!")  # Print wrong login
-        ana_menu()  # Go back to main menu
+        print("Wrong username or password! / Hatalı kullanıcı adı veya şifre!")
+        ana_menu()
 
 # Customer menu (to be developed)
 # Müşteri menüsü (geliştirilecek)
