@@ -2,6 +2,7 @@ from cryptography.fernet import Fernet
 import os
 import time
 import random
+import datetime
 #şifre leme için gerekli kütüphane
 # Encryption key for Fernet  # EN: Encryption key for Fernet // TR: Fernet için şifreleme anahtarı
 key = b'HQ8Q0Tf71laVCu-ACno2d34sBYYEqM34V5d-efdhyo4='
@@ -457,16 +458,36 @@ def musteri_minigame_menu(kullanici_adi):
         islem_sonrasi_bekle()
         musteri_minigame_menu(kullanici_adi)
 
-# Minigame: Tic-Tac-Toe
-# Mini oyun: XOX
+# Minigame: Muz Elma Muz
+# Mini oyun: Muz Elma Muz
 def musteri_minigame_oyna(kullanici_adi):
     temizle()
-    print("\n--- Tic-Tac-Toe Game / XOX Oyunu ---")
+    print("\n--- Muz Elma Muz Game / Muz Elma Muz Oyunu ---")
     
+    # Son kupon kazanma tarihini kontrol et
+    son_kupon_tarihi = None
+    try:
+        with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
+            kuponlar = f.readlines()
+        for satir in kuponlar:
+            parcalar = satir.strip().split(',')
+            if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
+                son_kupon_tarihi = datetime.datetime.strptime(parcalar[2], '%Y-%m-%d')
+    except:
+        pass
+
+    # Kupon kazanma kontrolü
+    kupon_kazanabilir = True
+    if son_kupon_tarihi:
+        gecen_gun = (datetime.datetime.now() - son_kupon_tarihi).days
+        if gecen_gun < 14:  # 2 hafta = 14 gün
+            kupon_kazanabilir = False
+            print(f"\nSon kuponunuzdan bu yana {gecen_gun} gün geçti. Yeni kupon için {14-gecen_gun} gün daha beklemelisiniz.")
+
     class TicTacToe:
         def __init__(self):
             self.board = [[' ' for _ in range(3)] for _ in range(3)]
-            self.current_player = 'X'  # Kullanıcı X, bilgisayar O
+            self.current_player = '🍎'  # Kullanıcı Elma, bilgisayar Muz
             self.winner = None
             self.game_over = False
         
@@ -514,9 +535,9 @@ def musteri_minigame_oyna(kullanici_adi):
         
         def minimax(self, depth, is_maximizing):
             if self.check_winner():
-                if self.winner == 'X':
+                if self.winner == '🍎':
                     return -1
-                elif self.winner == 'O':
+                elif self.winner == '🍌':
                     return 1
                 else:
                     return 0
@@ -526,7 +547,7 @@ def musteri_minigame_oyna(kullanici_adi):
                 for i in range(3):
                     for j in range(3):
                         if self.board[i][j] == ' ':
-                            self.board[i][j] = 'O'
+                            self.board[i][j] = '🍌'
                             score = self.minimax(depth + 1, False)
                             self.board[i][j] = ' '
                             best_score = max(score, best_score)
@@ -536,7 +557,7 @@ def musteri_minigame_oyna(kullanici_adi):
                 for i in range(3):
                     for j in range(3):
                         if self.board[i][j] == ' ':
-                            self.board[i][j] = 'X'
+                            self.board[i][j] = '🍎'
                             score = self.minimax(depth + 1, True)
                             self.board[i][j] = ' '
                             best_score = min(score, best_score)
@@ -549,7 +570,7 @@ def musteri_minigame_oyna(kullanici_adi):
             for i in range(3):
                 for j in range(3):
                     if self.board[i][j] == ' ':
-                        self.board[i][j] = 'O'
+                        self.board[i][j] = '🍌'
                         score = self.minimax(0, False)
                         self.board[i][j] = ' '
                         
@@ -576,7 +597,7 @@ def musteri_minigame_oyna(kullanici_adi):
     while not oyun.game_over:
         oyun.print_board()
         
-        if oyun.current_player == 'X':
+        if oyun.current_player == '🍎':
             print("Sıra sizde! (1-9 arası bir sayı girin)")
             try:
                 move = int(input("Hamleniz: ")) - 1
@@ -588,7 +609,7 @@ def musteri_minigame_oyna(kullanici_adi):
                         if oyun.check_winner():
                             oyun.game_over = True
                         else:
-                            oyun.current_player = 'O'
+                            oyun.current_player = '🍌'
                     else:
                         print("Geçersiz hamle! Lütfen boş bir kare seçin.")
                 else:
@@ -605,22 +626,46 @@ def musteri_minigame_oyna(kullanici_adi):
                 if oyun.check_winner():
                     oyun.game_over = True
                 else:
-                    oyun.current_player = 'X'
+                    oyun.current_player = '🍎'
     
     oyun.print_board()
     
-    if oyun.winner == 'X':
+    if oyun.winner == '🍎':
         print("Tebrikler! Kazandınız!")
         kazanma_sayisi += 1
         skor_guncelle(kullanici_adi, 1)
         
         # Kupon kontrolü ve ekleme
-        if kazanma_sayisi >= 3:  # 3 kazanma sonrası kupon
-            kupon_oran = min(25, 5 + (kazanma_sayisi * 5))  # Her kazanmada kupon oranı artar, max 25%
+        if kupon_kazanabilir:
+            # Kullanıcının toplam kupon sayısını kontrol et
+            toplam_kupon = 0
+            try:
+                with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
+                    kuponlar = f.readlines()
+                for satir in kuponlar:
+                    if satir.startswith(kullanici_adi + ','):
+                        toplam_kupon += 1
+            except:
+                pass
+
+            # İndirim oranını belirle (azalan oran)
+            if toplam_kupon == 0:
+                kupon_oran = 50  # İlk kupon %50
+            elif toplam_kupon == 1:
+                kupon_oran = 35  # İkinci kupon %35
+            elif toplam_kupon == 2:
+                kupon_oran = 25  # Üçüncü kupon %25
+            else:
+                kupon_oran = 15  # Sonraki kuponlar %15
+
+            # Kuponu kaydet
+            bugun = datetime.datetime.now().strftime('%Y-%m-%d')
             with open(dosya_dict['coupons'], 'a', encoding='utf-8') as f:
-                f.write(f"{kullanici_adi},{kupon_oran}\n")
+                f.write(f"{kullanici_adi},{kupon_oran},{bugun}\n")
             print(f"\nTebrikler! %{kupon_oran} indirim kuponu kazandınız!")
-    elif oyun.winner == 'O':
+        else:
+            print("\nPuanınız bir arttı!")
+    elif oyun.winner == '🍌':
         print("Bilgisayar kazandı!")
         kazanma_sayisi = 0  # Kaybedince kazanma sayısı sıfırlanır
         skor_guncelle(kullanici_adi, -1)
@@ -633,7 +678,6 @@ def musteri_minigame_oyna(kullanici_adi):
 
 # Skor güncelleme fonksiyonu
 def skor_guncelle(kullanici_adi, sonuc):
-    import datetime
     try:
         with open(dosya_dict['scoreboard'], 'r', encoding='utf-8') as f:
             skorlar = f.readlines()
@@ -849,8 +893,6 @@ def admin_stok_goruntule_guncelle():
 def admin_urun_curume_takip():
     temizle()
     print("\n--- Expiry/Decay Tracking / Çürüme/SKT Takibi ---")
-    
-    import datetime
     
     try:
         with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
