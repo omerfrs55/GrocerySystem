@@ -1,2 +1,10 @@
-aliveli,1001,Muz,2,30
-ayseyil,1002,Elma,5,50
+aliveli,Muz,2,30
+ayseyil,Elma,5,50
+omerfrs55,Muz,2,30
+omerfrs55,Domates,1,80
+ahmet123,Elma,5,50
+ayse123,Muz,3,30
+mehmet123,Portakal,4,40
+fatma123,Domates,2,40
+ali123,Salatalık,3,45
+omerfrs55,Portakal,25,1875
