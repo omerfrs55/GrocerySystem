@@ -1,0 +1,5 @@
+1,Elma,100,1
+2,Muz,50,2
+3,Portakal,50
+4,Domates,200,4
+5,Salatalık,150,5
