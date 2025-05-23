@@ -5,7 +5,7 @@ import random
 import datetime
 #şifre leme için gerekli kütüphane
 # Encryption key for Fernet  # EN: Encryption key for Fernet // TR: Fernet için şifreleme anahtarı
-key = b'HQ8Q0Tf71laVCu-ACno2d34sBYYEqM34V5d-efdhyo4='
+key = Fernet.generate_key() #SECRET_KEY='HQ8Q0Tf71laVCu-ACno2d34sBYYEqM34V5d-efdhyo4=' 
 cipher = Fernet(key)
 # Grocery System and Storage Main File  # Main file for the grocery system
 # Market Sistemi ve Depolama Ana Dosyası  # Turkish title
@@ -77,7 +77,7 @@ def musteri_kayit():
     soyad = input("Surname (Soyad): ")
     kullanici_adi = input("Username (Kullanıcı Adı): ")
     sifre = input("Password (Şifre): ")
-    sifre_encoded = cipher.encrypt(sifre.encode()).decode()
+    sifre_encoded = cipher.encrypt(sifre.encode()).decode() #crypted password
     bakiye = '99999999'  # Yeni müşteriler 99999999 TL ile başlar
     
     try:
@@ -472,9 +472,13 @@ def musteri_minigame_oyna(kullanici_adi):
         for satir in kuponlar:
             parcalar = satir.strip().split(',')
             if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
-                son_kupon_tarihi = datetime.datetime.strptime(parcalar[2], '%Y-%m-%d')
-    except:
-        pass
+                try:
+                    son_kupon_tarihi = datetime.datetime.strptime(parcalar[2], '%Y-%m-%d')
+                except Exception as e:
+                    # Tarih formatı hatalıysa atla
+                    continue
+    except Exception as e:
+        son_kupon_tarihi = None
 
     # Kupon kazanma kontrolü
     kupon_kazanabilir = True
@@ -872,15 +876,20 @@ def admin_stok_goruntule_guncelle():
         yeni_stoklar = []
         with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
             stoklar = f.readlines()
+        urun_bulundu = False
         for satir in stoklar:
             parcalar = satir.strip().split(',')
-            if len(parcalar) > 2 and parcalar[1] == urun:
+            if len(parcalar) > 2 and parcalar[1].lower() == urun.lower():
                 parcalar[2] = str(miktar)
+                urun_bulundu = True
             yeni_stoklar.append(','.join(parcalar) + '\n')
-        with open(dosya_dict['stock'], 'w', encoding='utf-8') as f:
-            for satir in yeni_stoklar:
-                f.write(satir)
-        print(f"\nStock updated successfully! / Stok başarıyla güncellendi!")
+        if not urun_bulundu:
+            print(f"\nProduct not found! / Ürün bulunamadı!")
+        else:
+            with open(dosya_dict['stock'], 'w', encoding='utf-8') as f:
+                for satir in yeni_stoklar:
+                    f.write(satir)
+            print(f"\nStock updated successfully! / Stok başarıyla güncellendi!")
     elif secim == '0':
         admin_menu('admin')
         return
