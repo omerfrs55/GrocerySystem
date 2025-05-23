@@ -1,3 +1,0 @@
-ahmet123,10
-mehmet123,15
-ayse123,20
