@@ -4,14 +4,14 @@ import time
 import random
 import datetime
 #şifre leme için gerekli kütüphane
-# EN: Encryption key for Fernet // TR: Fernet için şifreleme anahtarımız
+# Encryption key for Fernet  # EN: Encryption key for Fernet // TR: Fernet için şifreleme anahtarı
 key = Fernet.generate_key() #SECRET_KEY='HQ8Q0Tf71laVCu-ACno2d34sBYYEqM34V5d-efdhyo4=' 
 cipher = Fernet(key)
-# EN: Main file for the grocery system // TR: Market Sistemi ve Depolama Ana Dosyası
+# Grocery System and Storage Main File  # Main file for the grocery system
 # Market Sistemi ve Depolama Ana Dosyası  # Turkish title
 
-# EN: Dictionary for file paths // TR: Dosya yolları için sözlüklerimiz
-dosya_dict = {
+# Files dictionary for .txt files  # EN: Dictionary for file paths // TR: Dosya yolları için sözlük
+file_dict = {
     'customer': 'customerRegister.txt',
     'admin': 'adminRegister.txt',
     'scoreboard': 'scoreboard.txt',
@@ -20,478 +20,464 @@ dosya_dict = {
     'purchases': 'customerPurchases.txt'
 }
 
-# EN: Terminal clearing function // TR: Terminal temizleme fonksiyonumuz
-def temizle():
+# Terminal clearing function
+def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-# EN: Wait and clear function after operation // TR: İşlem sonrası bekleme ve temizleme fonksiyonumuz
-def islem_sonrasi_bekle():
+# Wait and clear function after operation
+def wait_after_operation():
     input("\nPress Enter to continue...")
-    temizle()
+    clear()
 
-# EN: Main menu function // TR: Ana menü fonksiyonumuz
-def ana_menu():
-    temizle()
+# Main menu function
+def main_menu():
+    clear()
     print("\n--- Grocery System and Storage ---")
-    print("1. Customer Menu (Müşteri Menüsü)")
-    print("2. Admin/Boss Menu (Yönetici/Patron Menüsü)")
-    print("0. Exit (Çıkış)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        musteri_menu_secim()
-    elif secim == '2':
-        admin_giris_menu()
-    elif secim == '0':
-        print("Exiting... / Çıkılıyor...")
-        islem_sonrasi_bekle()
+    print("1. Customer Menu")
+    print("2. Admin/Boss Menu")
+    print("0. Exit")
+    choice = input("Select an option: ")
+    if choice == '1':
+        customer_menu_selection()
+    elif choice == '2':
+        admin_login_menu()
+    elif choice == '0':
+        print("Exiting...")
+        wait_after_operation()
         exit()
     else:
-        print("Invalid selection! / Geçersiz seçim!")
+        print("Invalid selection!")
         input("\nPress Enter to continue...")
-        ana_menu()
+        main_menu()
 
-def musteri_menu_secim():
-    temizle()
-    print("\n--- Customer Menu / Müşteri Menüsü ---")
-    print("1. Login (Giriş Yap)")
-    print("2. Register (Kayıt Ol)")
-    print("0. Back (Geri)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        musteri_giris_menu()
-    elif secim == '2':
-        musteri_kayit()
-    elif secim == '0':
-        ana_menu()
+def customer_menu_selection():
+    clear()
+    print("\n--- Customer Menu ---")
+    print("1. Login")
+    print("2. Register")
+    print("0. Back")
+    choice = input("Select an option: ")
+    if choice == '1':
+        customer_login_menu()
+    elif choice == '2':
+        customer_register()
+    elif choice == '0':
+        main_menu()
     else:
-        print("Invalid selection! / Geçersiz seçim!")
+        print("Invalid selection!")
         input("\nPress Enter to continue...")
-        musteri_menu_secim()
+        customer_menu_selection()
 
-def musteri_kayit():
-    temizle()
-    print("\n--- Customer Registration / Müşteri Kaydı ---")
-    ad = input("Name (Ad): ")
-    soyad = input("Surname (Soyad): ")
-    kullanici_adi = input("Username (Kullanıcı Adı): ")
-    sifre = input("Password (Şifre): ")
-    sifre_encoded = cipher.encrypt(sifre.encode()).decode() #crypted password
-    bakiye = '99999999'  # Yeni müşteriler 99999999 TL ile başlar
+def customer_register():
+    clear()
+    print("\n--- Customer Registration ---")
+    name = input("Name: ")
+    surname = input("Surname: ")
+    username = input("Username: ")
+    password = input("Password: ")
+    password_encoded = cipher.encrypt(password.encode()).decode()
+    balance = '99999999'  # New customers start with 99999999 TL
     
     try:
-        with open(dosya_dict['customer'], 'r', encoding='utf-8') as f:
-            satirlar = f.readlines()
+        with open(file_dict['customer'], 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        var_mi = False
-        for satir in satirlar:
-            bilgiler = satir.strip().split(',')
-            if len(bilgiler) > 2 and bilgiler[2] == kullanici_adi:
-                var_mi = True
+        exists = False
+        for line in lines:
+            info = line.strip().split(',')
+            if len(info) > 2 and info[2] == username:
+                exists = True
                 break
         
-        if var_mi:
-            print("This username is already taken! / Bu kullanıcı adı zaten alınmış!")
+        if exists:
+            print("This username is already taken!")
             input("\nPress Enter to continue...")
-            musteri_menu_secim()
+            customer_menu_selection()
         else:
-            with open(dosya_dict['customer'], 'a', encoding='utf-8') as f:
-                f.write(f"{ad},{soyad},{kullanici_adi},{sifre_encoded},{bakiye}\n")
-            print("Customer registered successfully! / Müşteri başarıyla kaydedildi!")
+            with open(file_dict['customer'], 'a', encoding='utf-8') as f:
+                f.write(f"{name},{surname},{username},{password_encoded},{balance}\n")
+            print("Customer registered successfully!")
             input("\nPress Enter to continue...")
-            musteri_menu_secim()
+            customer_menu_selection()
     except Exception as e:
-        print(f"An error occurred! / Bir hata oluştu! Hata: {str(e)}")
+        print(f"An error occurred! Error: {str(e)}")
         input("\nPress Enter to continue...")
-        musteri_menu_secim()
+        customer_menu_selection()
 
-# Customer login menu
-# Müşteri giriş menüsü
-def musteri_giris_menu():
-    temizle()
-    print("\n--- Customer Login / Müşteri Girişi ---")
-    kullanici_adi = input("Username (Kullanıcı Adı): ")
-    sifre = input("Password (Şifre): ")
+def customer_login_menu():
+    clear()
+    print("\n--- Customer Login ---")
+    username = input("Username: ")
+    password = input("Password: ")
     
     try:
-        with open(dosya_dict['customer'], 'r', encoding='utf-8') as f:
-            satirlar = f.readlines()
+        with open(file_dict['customer'], 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        giris_basarili = False
-        for satir in satirlar:
-            bilgiler = satir.strip().split(',')
-            if len(bilgiler) > 3 and bilgiler[2] == kullanici_adi:
+        login_successful = False
+        for line in lines:
+            info = line.strip().split(',')
+            if len(info) > 3 and info[2] == username:
                 try:
-                    sifre_cozulmus = cipher.decrypt(bilgiler[3].encode()).decode()
-                    if sifre == sifre_cozulmus:
-                        giris_basarili = True
+                    decrypted_password = cipher.decrypt(info[3].encode()).decode()
+                    if password == decrypted_password:
+                        login_successful = True
                         break
                 except:
-                    # Şifre şifrelenmemişse direkt karşılaştır
-                    if sifre == bilgiler[3]:
-                        giris_basarili = True
+                    if password == info[3]:
+                        login_successful = True
                         break
 
-        if giris_basarili:
-            print("Login successful! / Giriş başarılı!")
-            islem_sonrasi_bekle()
-            musteri_menu(kullanici_adi)
+        if login_successful:
+            print("Login successful!")
+            wait_after_operation()
+            customer_menu(username)
         else:
-            print("Wrong username or password! / Hatalı kullanıcı adı veya şifre!")
-            islem_sonrasi_bekle()
-            ana_menu()
+            print("Wrong username or password!")
+            wait_after_operation()
+            main_menu()
     except Exception as e:
-        print(f"An error occurred! / Bir hata oluştu! Hata: {str(e)}")
-        islem_sonrasi_bekle()
-        ana_menu()
+        print(f"An error occurred! Error: {str(e)}")
+        wait_after_operation()
+        main_menu()
 
-# Customer menu (to be developed)
-# Müşteri menüsü (geliştirilecek)
-def musteri_menu(kullanici_adi):
-    temizle()
-    print(f"\n--- Customer Menu for {kullanici_adi} / {kullanici_adi} için Müşteri Menüsü ---")
-    print("1. Shopping (Alışveriş)")
-    print("2. Coupons (Kuponlar)")
-    print("3. Minigame (Mini Oyun)")
-    print("0. Back (Geri)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        musteri_alisveris_menu(kullanici_adi)
-    elif secim == '2':
-        musteri_kupon_goruntule(kullanici_adi)
-    elif secim == '3':
-        musteri_minigame_menu(kullanici_adi)
-    elif secim == '0':
-        ana_menu()
+def customer_menu(username):
+    clear()
+    print(f"\n--- Customer Menu for {username} ---")
+    print("1. Shopping")
+    print("2. Coupons")
+    print("3. Minigame")
+    print("0. Back")
+    choice = input("Select an option: ")
+    if choice == '1':
+        customer_shopping_menu(username)
+    elif choice == '2':
+        customer_view_coupons(username)
+    elif choice == '3':
+        customer_minigame_menu(username)
+    elif choice == '0':
+        main_menu()
     else:
-        print("Invalid selection! / Geçersiz seçim!")
+        print("Invalid selection!")
         input("\nPress Enter to continue...")
-        musteri_menu(kullanici_adi)
+        customer_menu(username)
 
-# Customer coupon view
-# Müşteri kuponlarını görüntüleme fonksiyonu
-def musteri_kupon_goruntule(kullanici_adi):
-    temizle()
-    print("\n--- Your Coupons / Kuponlarınız ---")
-    bulundu = False
-    with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
-        kuponlar = f.readlines()
-    for satir in kuponlar:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
-            print(f"Coupon: %{parcalar[1]} discount / Kupon: %{parcalar[1]} indirim")
-            bulundu = True
-    if not bulundu:
-        print("No active coupons found! / Aktif kuponunuz bulunmamaktadır!")
+def customer_view_coupons(username):
+    clear()
+    print("\n--- Your Coupons ---")
+    found = False
+    with open(file_dict['coupons'], 'r', encoding='utf-8') as f:
+        coupons = f.readlines()
+    for line in coupons:
+        parts = line.strip().split(',')
+        if len(parts) > 1 and parts[0] == username:
+            print(f"Coupon: %{parts[1]} discount")
+            found = True
+    if not found:
+        print("No active coupons found!")
     
     input("\nPress Enter to continue...")
-    musteri_menu(kullanici_adi)
+    customer_menu(username)
 
-# Shopping menu for customer
-# Müşteri için alışveriş menüsü
-def musteri_alisveris_menu(kullanici_adi):
-    temizle()
-    print("\n--- Shopping Menu / Alışveriş Menüsü ---")
-    sepet = {}  # Alışveriş sepeti
+def customer_shopping_menu(username):
+    clear()
+    print("\n--- Shopping Menu ---")
+    cart = {}  # Shopping cart
     
-    # Ürün kategorileri
-    meyveler = ['Elma', 'Muz', 'Portakal']
-    sebzeler = ['Domates', 'Salatalık']
+    # Product categories
+    fruits = ['Apple', 'Banana', 'Orange']
+    vegetables = ['Tomato', 'Cucumber']
     
-    # Kullanıcının alışveriş geçmişini oku
-    kullanici_alisveris = {}
+    # Read user's shopping history
+    user_purchases = {}
     try:
-        with open(dosya_dict['purchases'], 'r', encoding='utf-8') as f:
-            alisverisler = f.readlines()
-        for satir in alisverisler:
-            parcalar = satir.strip().split(',')
-            if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
-                urun = parcalar[1]
-                adet = int(parcalar[2])
-                if urun in kullanici_alisveris:
-                    kullanici_alisveris[urun] += adet
+        with open(file_dict['purchases'], 'r', encoding='utf-8') as f:
+            purchases = f.readlines()
+        for line in purchases:
+            parts = line.strip().split(',')
+            if len(parts) > 2 and parts[0] == username:
+                product = parts[1]
+                quantity = int(parts[2])
+                if product in user_purchases:
+                    user_purchases[product] += quantity
                 else:
-                    kullanici_alisveris[urun] = adet
+                    user_purchases[product] = quantity
     except:
         pass
     
     while True:
         print("\n" + "="*50)
-        print("1. RAF - MEYVELER")
+        print("1. SHELF - FRUITS")
         print("="*50)
         
-        # Meyveleri sırala
-        siralanan_meyveler = []
-        for meyve in meyveler:
-            adet = kullanici_alisveris.get(meyve, 0)
-            siralanan_meyveler.append((meyve, adet))
-        siralanan_meyveler.sort(key=lambda x: x[1], reverse=True)
+        # Sort fruits
+        sorted_fruits = []
+        for fruit in fruits:
+            quantity = user_purchases.get(fruit, 0)
+            sorted_fruits.append((fruit, quantity))
+        sorted_fruits.sort(key=lambda x: x[1], reverse=True)
         
-        # Meyveleri göster
-        for i, (meyve, adet) in enumerate(siralanan_meyveler, 1):
+        # Show fruits
+        for i, (fruit, quantity) in enumerate(sorted_fruits, 1):
             try:
-                with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-                    stoklar = f.readlines()
-                for satir in stoklar:
-                    parcalar = satir.strip().split(',')
-                    if len(parcalar) > 2 and parcalar[1].lower() == meyve.lower():
-                        print(f"{i}. {meyve:<15} {parcalar[2]} TL (Stok: {parcalar[2]})")
+                with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+                    stocks = f.readlines()
+                for line in stocks:
+                    parts = line.strip().split(',')
+                    if len(parts) > 2 and parts[1].lower() == fruit.lower():
+                        print(f"{i}. {fruit:<15} {parts[2]} TL (Stock: {parts[2]})")
                         break
             except:
                 pass
         
         print("\n" + "="*50)
-        print("2. RAF - SEBZELER")
+        print("2. SHELF - VEGETABLES")
         print("="*50)
         
-        # Sebzeleri sıralama işlemimiz
-        siralanan_sebzeler = []
-        for sebze in sebzeler:
-            adet = kullanici_alisveris.get(sebze, 0)
-            siralanan_sebzeler.append((sebze, adet))
-        siralanan_sebzeler.sort(key=lambda x: x[1], reverse=True)
+        # Sort vegetables
+        sorted_vegetables = []
+        for vegetable in vegetables:
+            quantity = user_purchases.get(vegetable, 0)
+            sorted_vegetables.append((vegetable, quantity))
+        sorted_vegetables.sort(key=lambda x: x[1], reverse=True)
         
-        # Sebzeleri gösterme işlemimiz
-        for i, (sebze, adet) in enumerate(siralanan_sebzeler, 1):
+        # Show vegetables
+        for i, (vegetable, quantity) in enumerate(sorted_vegetables, 1):
             try:
-                with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-                    stoklar = f.readlines()
-                for satir in stoklar:
-                    parcalar = satir.strip().split(',')
-                    if len(parcalar) > 2 and parcalar[1].lower() == sebze.lower():
-                        print(f"{i}. {sebze:<15} {parcalar[2]} TL (Stok: {parcalar[2]})")
+                with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+                    stocks = f.readlines()
+                for line in stocks:
+                    parts = line.strip().split(',')
+                    if len(parts) > 2 and parts[1].lower() == vegetable.lower():
+                        print(f"{i}. {vegetable:<15} {parts[2]} TL (Stock: {parts[2]})")
                         break
             except:
                 pass
         
         print("\n" + "="*50)
-        print("1. Add to Cart (Sepete Ekle)")
-        print("2. View Cart (Sepeti Görüntüle)")
-        print("3. Complete Purchase (Alışverişi Tamamla)")
-        print("0. Back (Geri)")
+        print("1. Add to Cart")
+        print("2. View Cart")
+        print("3. Complete Purchase")
+        print("0. Back")
         
-        secim = input("\nSelect an option (Bir seçenek seçin): ")
+        choice = input("\nSelect an option: ")
         
-        if secim == '1':
-            urun_kodu = input("Enter product name (Ürün adı girin): ").strip()
-            urun_bulundu = False
+        if choice == '1':
+            product_code = input("Enter product name: ")
+            product_found = False
             
-            # Tüm ürünleri birleştirme işlemimiz
-            tum_urunler = siralanan_meyveler + siralanan_sebzeler
+            # Combine all products
+            all_products = sorted_fruits + sorted_vegetables
             
-            for urun, _ in tum_urunler:
-                if urun.lower() == urun_kodu.lower():
+            for product, _ in all_products:
+                if product.lower() == product_code.lower():
                     try:
-                        with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-                            stoklar = f.readlines()
-                        for satir in stoklar:
-                            parcalar = satir.strip().split(',')
-                            if len(parcalar) > 2 and parcalar[1].lower() == urun.lower():
-                                urun_bulundu = True
-                                stok_miktari = int(parcalar[2])
-                                adet = input(f"How many {urun}? (Kaç adet {urun}?): ")
-                                if not adet.isdigit() or int(adet) < 1:
-                                    print("Invalid quantity! / Geçersiz adet!")
+                        with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+                            stocks = f.readlines()
+                        for line in stocks:
+                            parts = line.strip().split(',')
+                            if len(parts) > 2 and parts[1].lower() == product.lower():
+                                product_found = True
+                                stock_quantity = int(parts[2])
+                                quantity = input(f"How many {product}?: ")
+                                if not quantity.isdigit() or int(quantity) < 1:
+                                    print("Invalid quantity!")
                                     continue
-                                adet = int(adet)
-                                if adet > stok_miktari:
-                                    print(f"Not enough stock! Only {stok_miktari} left. / Yeterli stok yok! Sadece {stok_miktari} adet kaldı.")
+                                quantity = int(quantity)
+                                if quantity > stock_quantity:
+                                    print(f"Not enough stock! Only {stock_quantity} left.")
                                     continue
-                                if urun in sepet:
-                                    sepet[urun]['adet'] += adet
-                                    sepet[urun]['toplam'] += adet * int(parcalar[2])
+                                if product in cart:
+                                    cart[product]['quantity'] += quantity
+                                    cart[product]['total'] += quantity * int(parts[2])
                                 else:
-                                    sepet[urun] = {
-                                        'adet': adet,
-                                        'fiyat': int(parcalar[2]),
-                                        'toplam': adet * int(parcalar[2])
+                                    cart[product] = {
+                                        'quantity': quantity,
+                                        'price': int(parts[2]),
+                                        'total': quantity * int(parts[2])
                                     }
-                                print(f"{urun} added to cart! / {urun} sepete eklendi!")
+                                print(f"{product} added to cart!")
                                 break
                     except:
                         pass
                     break
             
-            if not urun_bulundu:
-                print("Product not found! / Ürün bulunamadı!")
+            if not product_found:
+                print("Product not found!")
                 
-        elif secim == '2':
-            if not sepet:
-                print("Your cart is empty! / Sepetiniz boş!")
+        elif choice == '2':
+            if not cart:
+                print("Your cart is empty!")
             else:
-                print("\nYour Cart / Sepetiniz:")
-                toplam = 0
-                for urun, detay in sepet.items():
-                    print(f"{urun}: {detay['adet']} adet x {detay['fiyat']} TL = {detay['toplam']} TL")
-                    toplam += detay['toplam']
-                print(f"\nTotal / Toplam: {toplam} TL")
+                print("\nYour Cart:")
+                total = 0
+                for product, details in cart.items():
+                    print(f"{product}: {details['quantity']} x {details['price']} TL = {details['total']} TL")
+                    total += details['total']
+                print(f"\nTotal: {total} TL")
                 
-        elif secim == '3':
-            if not sepet:
-                print("Your cart is empty! / Sepetiniz boş!")
+        elif choice == '3':
+            if not cart:
+                print("Your cart is empty!")
                 continue
                 
-            print("\nYour Cart / Sepetiniz:")
-            toplam = 0
-            for urun, detay in sepet.items():
-                print(f"{urun}: {detay['adet']} adet x {detay['fiyat']} TL = {detay['toplam']} TL")
-                toplam += detay['toplam']
-            print(f"\nTotal / Toplam: {toplam} TL")
+            print("\nYour Cart:")
+            total = 0
+            for product, details in cart.items():
+                print(f"{product}: {details['quantity']} x {details['price']} TL = {details['total']} TL")
+                total += details['total']
+            print(f"\nTotal: {total} TL")
             
-            onay = input("\nDo you want to complete the purchase? (y/n) / Alışverişi tamamlamak istiyor musunuz? (e/h): ")
-            if onay.lower() in ['y', 'e']:
-                # Kupon kontrolümüz
-                kupon_var = False
-                kupon_orani = 0
+            confirm = input("\nDo you want to complete the purchase? (y/n): ")
+            if confirm.lower() in ['y', 'e']:
+                # Coupon check
+                has_coupon = False
+                coupon_rate = 0
                 try:
-                    with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
-                        kuponlar = f.readlines()
-                    for satir in kuponlar:
-                        parcalar = satir.strip().split(',')
-                        if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
-                            kupon_var = True
-                            kupon_orani = int(parcalar[1])
+                    with open(file_dict['coupons'], 'r', encoding='utf-8') as f:
+                        coupons = f.readlines()
+                    for line in coupons:
+                        parts = line.strip().split(',')
+                        if len(parts) > 1 and parts[0] == username:
+                            has_coupon = True
+                            coupon_rate = int(parts[1])
                             break
                 except:
                     pass
                 
-                if kupon_var:
-                    kupon_kullan = input(f"You have a %{kupon_orani} discount coupon. Use it? (y/n) / %{kupon_orani} indirim kuponunuz var. Kullanmak ister misiniz? (e/h): ")
-                    if kupon_kullan.lower() in ['y', 'e']:
-                        indirim = toplam * kupon_orani // 100
-                        toplam -= indirim
-                        print(f"Discount applied! New total: {toplam} TL / İndirim uygulandı! Yeni toplam: {toplam} TL")
-                        # Kuponu silme işlemimiz
-                        yeni_kuponlar = []
-                        for satir in kuponlar:
-                            if not satir.startswith(kullanici_adi + ','):
-                                yeni_kuponlar.append(satir)
-                        with open(dosya_dict['coupons'], 'w', encoding='utf-8') as f:
-                            for satir in yeni_kuponlar:
-                                f.write(satir)
+                if has_coupon:
+                    use_coupon = input(f"You have a %{coupon_rate} discount coupon. Use it? (y/n): ")
+                    if use_coupon.lower() in ['y', 'e']:
+                        discount = total * coupon_rate // 100
+                        total -= discount
+                        print(f"Discount applied! New total: {total} TL")
+                        # Delete coupon
+                        new_coupons = []
+                        for line in coupons:
+                            if not line.startswith(username + ','):
+                                new_coupons.append(line)
+                        with open(file_dict['coupons'], 'w', encoding='utf-8') as f:
+                            for line in new_coupons:
+                                f.write(line)
                 
-                # Bakiye kontrolümüz
+                # Balance check
                 try:
-                    with open(dosya_dict['customer'], 'r', encoding='utf-8') as f:
-                        musteriler = f.readlines()
-                    bakiye = 0
-                    for satir in musteriler:
-                        bilgiler = satir.strip().split(',')
-                        if len(bilgiler) > 4 and bilgiler[2] == kullanici_adi:
-                            bakiye = int(bilgiler[4])
+                    with open(file_dict['customer'], 'r', encoding='utf-8') as f:
+                        customers = f.readlines()
+                    balance = 0
+                    for line in customers:
+                        info = line.strip().split(',')
+                        if len(info) > 4 and info[2] == username:
+                            balance = int(info[4])
                     
-                    if bakiye < toplam:
-                        print(f"Insufficient balance! / Yetersiz bakiye! (Balance/Bakiye: {bakiye} TL)")
+                    if balance < total:
+                        print(f"Insufficient balance! (Balance: {balance} TL)")
                         continue
                     
-                    # Bakiyeden düşme işlemimiz
-                    yeni_musteriler = []
-                    for satir in musteriler:
-                        bilgiler = satir.strip().split(',')
-                        if len(bilgiler) > 4 and bilgiler[2] == kullanici_adi:
-                            yeni_bakiye = bakiye - toplam
-                            bilgiler[4] = str(yeni_bakiye)
-                            yeni_musteriler.append(','.join(bilgiler) + '\n')
+                    # Deduct from balance
+                    new_customers = []
+                    for line in customers:
+                        info = line.strip().split(',')
+                        if len(info) > 4 and info[2] == username:
+                            new_balance = balance - total
+                            info[4] = str(new_balance)
+                            new_customers.append(','.join(info) + '\n')
                         else:
-                            yeni_musteriler.append(satir)
-                    with open(dosya_dict['customer'], 'w', encoding='utf-8') as f:
-                        for satir in yeni_musteriler:
-                            f.write(satir)
+                            new_customers.append(line)
+                    with open(file_dict['customer'], 'w', encoding='utf-8') as f:
+                        for line in new_customers:
+                            f.write(line)
                     
-                    # Stoktan düşme işlemimiz
-                    yeni_stoklar = []
-                    with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-                        stoklar = f.readlines()
-                    for satir in stoklar:
-                        parcalar = satir.strip().split(',')
-                        if len(parcalar) > 2:
-                            urun_adi = parcalar[1]
-                            if urun_adi in sepet:
-                                yeni_stok = int(parcalar[2]) - sepet[urun_adi]['adet']
-                                yeni_stoklar.append(f"{parcalar[0]},{parcalar[1]},{yeni_stok}\n")
+                    # Deduct from stock
+                    new_stocks = []
+                    with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+                        stocks = f.readlines()
+                    for line in stocks:
+                        parts = line.strip().split(',')
+                        if len(parts) > 2:
+                            product_name = parts[1]
+                            if product_name in cart:
+                                new_stock = int(parts[2]) - cart[product_name]['quantity']
+                                new_stocks.append(f"{parts[0]},{parts[1]},{new_stock}\n")
                             else:
-                                yeni_stoklar.append(satir)
-                    with open(dosya_dict['stock'], 'w', encoding='utf-8') as f:
-                        for satir in yeni_stoklar:
-                            f.write(satir)
+                                new_stocks.append(line)
+                    with open(file_dict['stock'], 'w', encoding='utf-8') as f:
+                        for line in new_stocks:
+                            f.write(line)
                     
-                    # Alışverişi kaydet
-                    with open(dosya_dict['purchases'], 'a', encoding='utf-8') as f:
-                        for urun, detay in sepet.items():
-                            f.write(f"{kullanici_adi},{urun},{detay['adet']},{detay['toplam']}\n")
+                    # Save purchase
+                    with open(file_dict['purchases'], 'a', encoding='utf-8') as f:
+                        for product, details in cart.items():
+                            f.write(f"{username},{product},{details['quantity']},{details['total']}\n")
                     
-                    print(f"Purchase completed! New balance: {yeni_bakiye} TL / Alışveriş tamamlandı! Yeni bakiye: {yeni_bakiye} TL")
+                    print(f"Purchase completed! New balance: {new_balance} TL")
                     input("\nPress Enter to continue...")
-                    musteri_menu(kullanici_adi)
+                    customer_menu(username)
                     return
                 except Exception as e:
-                    print(f"An error occurred during purchase! / Alışveriş sırasında bir hata oluştu! Hata: {str(e)}")
+                    print(f"An error occurred during purchase! Error: {str(e)}")
                     continue
                 
-        elif secim == '0':
-            musteri_menu(kullanici_adi)
+        elif choice == '0':
+            customer_menu(username)
             return
         else:
-            print("Invalid selection! / Geçersiz seçim!")
+            print("Invalid selection!")
         
         input("\nPress Enter to continue...")
-        temizle()
+        clear()
 
-# Minigame menu işlemimiz
-# Mini oyun menüsü işlemimiz
-def musteri_minigame_menu(kullanici_adi):
-    temizle()
-    print("\n--- Minigame Menu / Mini Oyun Menüsü ---")
-    print("1. Play Game (Oyun Oyna)")
-    print("2. View Scoreboard (Skor Tablosu)")
-    print("0. Back (Geri)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        musteri_minigame_oyna(kullanici_adi)
-    elif secim == '2':
-        musteri_minigame_scoreboard(kullanici_adi)
-    elif secim == '0':
-        musteri_menu(kullanici_adi)
+def customer_minigame_menu(username):
+    clear()
+    print("\n--- Minigame Menu ---")
+    print("1. Play Game")
+    print("2. View Scoreboard")
+    print("0. Back")
+    choice = input("Select an option: ")
+    if choice == '1':
+        customer_play_minigame(username)
+    elif choice == '2':
+        customer_minigame_scoreboard(username)
+    elif choice == '0':
+        customer_menu(username)
     else:
-        print("Invalid selection! / Geçersiz seçim!")
-        islem_sonrasi_bekle()
-        musteri_minigame_menu(kullanici_adi)
+        print("Invalid selection!")
+        wait_after_operation()
+        customer_minigame_menu(username)
 
-# Minigame: Banana Apple Banana işlemimiz
-# Mini oyun: Muz Elma Muz işlemimiz
-def musteri_minigame_oyna(kullanici_adi):
-    temizle()
-    print("\n--- Muz Elma Muz Game / Muz Elma Muz Oyunu ---")
+def customer_play_minigame(username):
+    clear()
+    print("\n--- Apple Banana Apple Game ---")
     
-    # Son kupon kazanma tarihini kontrol etme işlemimiz
-    son_kupon_tarihi = None
+    # Check last coupon win date
+    last_coupon_date = None
     try:
-        with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
-            kuponlar = f.readlines()
-        for satir in kuponlar:
-            parcalar = satir.strip().split(',')
-            if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
+        with open(file_dict['coupons'], 'r', encoding='utf-8') as f:
+            coupons = f.readlines()
+        for line in coupons:
+            parts = line.strip().split(',')
+            if len(parts) > 2 and parts[0] == username:
                 try:
-                    son_kupon_tarihi = datetime.datetime.strptime(parcalar[2], '%Y-%m-%d')
+                    last_coupon_date = datetime.datetime.strptime(parts[2], '%Y-%m-%d')
                 except Exception as e:
-                    # Tarih formatı hatalıysa atlama işlemimiz
                     continue
     except Exception as e:
-        son_kupon_tarihi = None
+        last_coupon_date = None
 
-    # Kupon kazanma kontrolümüz
-    kupon_kazanabilir = True
-    if son_kupon_tarihi:
-        gecen_gun = (datetime.datetime.now() - son_kupon_tarihi).days
-        if gecen_gun < 14:  # 2 hafta = 14 gün
-            kupon_kazanabilir = False
-            print(f"\nSon kuponunuzdan bu yana {gecen_gun} gün geçti. Yeni kupon için {14-gecen_gun} gün daha beklemelisiniz.")
+    # Coupon win check
+    can_win_coupon = True
+    if last_coupon_date:
+        days_passed = (datetime.datetime.now() - last_coupon_date).days
+        if days_passed < 14:  # 2 weeks = 14 days
+            can_win_coupon = False
+            print(f"\n{days_passed} days have passed since your last coupon. You need to wait {14-days_passed} more days for a new coupon.")
 
     class TicTacToe:
         def __init__(self):
             self.board = [[' ' for _ in range(3)] for _ in range(3)]
-            self.current_player = '🍎'  # EN: Set first player as Apple // TR: İlk oyuncuyu Elma olarak ayarla
-            self.winner = None  # EN: Initialize winner as None // TR: Kazananı None olarak başlat
-            self.game_over = False  # EN: Initialize game state as not over // TR: Oyun durumunu bitmemiş olarak başlat
+            self.current_player = '🍎'  # User is Apple, computer is Banana
+            self.winner = None
+            self.game_over = False
         
         def print_board(self):
             print("\n")
@@ -501,26 +487,26 @@ def musteri_minigame_oyna(kullanici_adi):
                     print("-----------")
             print("\n")
         
-        def make_move(self, row, col):  # EN: Method to make a move on the board // TR: Tahtada hamle yapma metodu
-            if self.board[row][col] == ' ':  # EN: Check if the cell is empty // TR: Hücrenin boş olup olmadığını kontrol etme işlemimiz
-                self.board[row][col] = self.current_player  # EN: Place the player's symbol // TR: Oyuncunun sembolünü yerleştir
+        def make_move(self, row, col):
+            if self.board[row][col] == ' ':
+                self.board[row][col] = self.current_player
                 return True
             return False
         
-        def check_winner(self):  # EN: Method to check for a winner // TR: Kazananı kontrol etme metodu
-            # Yatay kontrolümüz
+        def check_winner(self):
+            # Horizontal check
             for i in range(3):
-                if self.board[i][0] == self.board[i][1] == self.board[i][2] != ' ':  # EN: Check horizontal lines // TR: Yatay çizgileri kontrol et
+                if self.board[i][0] == self.board[i][1] == self.board[i][2] != ' ':
                     self.winner = self.board[i][0]
                     return True
             
-            # Dikey kontrolümüz
+            # Vertical check
             for i in range(3):
                 if self.board[0][i] == self.board[1][i] == self.board[2][i] != ' ':
                     self.winner = self.board[0][i]
                     return True
             
-            # Çapraz kontrolümüz
+            # Diagonal check
             if self.board[0][0] == self.board[1][1] == self.board[2][2] != ' ':
                 self.winner = self.board[0][0]
                 return True
@@ -528,7 +514,7 @@ def musteri_minigame_oyna(kullanici_adi):
                 self.winner = self.board[0][2]
                 return True
             
-            # Beraberlik kontrolümüz
+            # Draw check
             if all(self.board[i][j] != ' ' for i in range(3) for j in range(3)):
                 self.winner = 'Draw'
                 return True
@@ -582,395 +568,365 @@ def musteri_minigame_oyna(kullanici_adi):
             
             return best_move
     
-    oyun = TicTacToe()
-    kazanma_sayisi = 0
+    game = TicTacToe()
+    win_count = 0
     
-    # Mevcut skoru al
+    # Get current score
     try:
-        with open(dosya_dict['scoreboard'], 'r', encoding='utf-8') as f:
-            skorlar = f.readlines()
-        for satir in skorlar:
-            parcalar = satir.strip().split(',')
-            if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
-                kazanma_sayisi = int(parcalar[1])
+        with open(file_dict['scoreboard'], 'r', encoding='utf-8') as f:
+            scores = f.readlines()
+        for line in scores:
+            parts = line.strip().split(',')
+            if len(parts) > 1 and parts[0] == username:
+                win_count = int(parts[1])
     except:
-        kazanma_sayisi = 0
+        win_count = 0
     
-    while not oyun.game_over:
-        oyun.print_board()
+    while not game.game_over:
+        game.print_board()
         
-        if oyun.current_player == '🍎':
-            print("Sıra sizde! (1-9 arası bir sayı girin)")
+        if game.current_player == '🍎':
+            print("Your turn! (Enter a number between 1-9)")
             try:
-                move = int(input("Hamleniz: ")) - 1
+                move = int(input("Your move: ")) - 1
                 row = move // 3
                 col = move % 3
                 
                 if 0 <= row <= 2 and 0 <= col <= 2:
-                    if oyun.make_move(row, col):
-                        if oyun.check_winner():
-                            oyun.game_over = True
+                    if game.make_move(row, col):
+                        if game.check_winner():
+                            game.game_over = True
                         else:
-                            oyun.current_player = '🍌'
+                            game.current_player = '🍌'
                     else:
-                        print("Geçersiz hamle! Lütfen boş bir kare seçin.")
+                        print("Invalid move! Please select an empty square.")
                 else:
-                    print("Geçersiz hamle! 1-9 arası bir sayı girin.")
+                    print("Invalid move! Please enter a number between 1-9.")
             except ValueError:
-                print("Geçersiz giriş! Lütfen 1-9 arası bir sayı girin.")
+                print("Invalid input! Please enter a number between 1-9.")
         else:
-            print("Bilgisayar düşünüyor...")
+            print("Computer is thinking...")
             time.sleep(1)
-            best_move = oyun.get_best_move()
+            best_move = game.get_best_move()
             if best_move:
                 row, col = best_move
-                oyun.make_move(row, col)
-                if oyun.check_winner():
-                    oyun.game_over = True
+                game.make_move(row, col)
+                if game.check_winner():
+                    game.game_over = True
                 else:
-                    oyun.current_player = '🍎'
+                    game.current_player = '🍎'
     
-    oyun.print_board()
+    game.print_board()
     
-    if oyun.winner == '🍎':
-        print("Tebrikler! Kazandınız!")
-        kazanma_sayisi += 1
-        skor_guncelle(kullanici_adi, 1)
+    if game.winner == '🍎':
+        print("Congratulations! You won!")
+        win_count += 1
+        update_score(username, 1)
         
-        # Kupon kontrolü ve ekleme
-        if kupon_kazanabilir:
-            # Kullanıcının toplam kupon sayısını kontrol et
-            toplam_kupon = 0
+        # Coupon check and add
+        if can_win_coupon:
+            # Check user's total coupon count
+            total_coupons = 0
             try:
-                with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
-                    kuponlar = f.readlines()
-                for satir in kuponlar:
-                    if satir.startswith(kullanici_adi + ','):
-                        toplam_kupon += 1
+                with open(file_dict['coupons'], 'r', encoding='utf-8') as f:
+                    coupons = f.readlines()
+                for line in coupons:
+                    if line.startswith(username + ','):
+                        total_coupons += 1
             except:
                 pass
 
-            # İndirim oranını belirleme işlemimiz (azalan oran)
-            if toplam_kupon == 0:
-                kupon_oran = 50  # İlk kupon %50
-            elif toplam_kupon == 1:
-                kupon_oran = 35  # İkinci kupon %35
-            elif toplam_kupon == 2:
-                kupon_oran = 25  # Üçüncü kupon %25
+            # Determine discount rate (decreasing rate)
+            if total_coupons == 0:
+                coupon_rate = 50  # First coupon 50%
+            elif total_coupons == 1:
+                coupon_rate = 35  # Second coupon 35%
+            elif total_coupons == 2:
+                coupon_rate = 25  # Third coupon 25%
             else:
-                kupon_oran = 15  # Sonraki kuponlar %15
+                coupon_rate = 15  # Next coupons 15%
 
-            # Kuponu kaydet
-            bugun = datetime.datetime.now().strftime('%Y-%m-%d')
-            with open(dosya_dict['coupons'], 'a', encoding='utf-8') as f:
-                f.write(f"{kullanici_adi},{kupon_oran},{bugun}\n")
-            print(f"\nTebrikler! %{kupon_oran} indirim kuponu kazandınız!")
+            # Save coupon
+            today = datetime.datetime.now().strftime('%Y-%m-%d')
+            with open(file_dict['coupons'], 'a', encoding='utf-8') as f:
+                f.write(f"{username},{coupon_rate},{today}\n")
+            print(f"\nCongratulations! You won a %{coupon_rate} discount coupon!")
         else:
-            print("\nPuanınız bir arttı!")
-    elif oyun.winner == '🍌':
-        print("Bilgisayar kazandı!")
-        kazanma_sayisi = 0  # Kaybedince kazanma sayısımız sıfırlanır
-        skor_guncelle(kullanici_adi, -1)
+            print("\nYour score increased by 1!")
+    elif game.winner == '🍌':
+        print("Computer won!")
+        win_count = 0  # Reset win count on loss
+        update_score(username, -1)
     else:
-        print("Berabere!")
-        skor_guncelle(kullanici_adi, 0)
-    
-    input("\nDevam etmek için Enter'a basın...")
-    musteri_menu(kullanici_adi)
-
-# Skor güncelleme fonksiyonu işlemimiz
-def skor_guncelle(kullanici_adi, sonuc):
-    try:
-        with open(dosya_dict['scoreboard'], 'r', encoding='utf-8') as f:
-            skorlar = f.readlines()
-    except:
-        skorlar = []
-    
-    yeni_skorlar = []
-    bulundu = False
-    
-    for satir in skorlar:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
-            skor = int(parcalar[1]) + sonuc
-            tarih = datetime.datetime.now().strftime('%Y-%m-%d')
-            yeni_skorlar.append(f"{kullanici_adi},{skor},{tarih}\n")
-            bulundu = True
-        else:
-            yeni_skorlar.append(satir)
-    
-    if not bulundu:
-        tarih = datetime.datetime.now().strftime('%Y-%m-%d')
-        yeni_skorlar.append(f"{kullanici_adi},{sonuc},{tarih}\n")
-    
-    with open(dosya_dict['scoreboard'], 'w', encoding='utf-8') as f:
-        for satir in yeni_skorlar:
-            f.write(satir)
-
-# Skor tablosunu gösterme işlemimiz
-def musteri_minigame_scoreboard(kullanici_adi):
-    temizle()
-    print("\n--- Minigame Scoreboard / Mini Oyun Skor Tablosu ---")
-    try:
-        with open(dosya_dict['scoreboard'], 'r', encoding='utf-8') as f:
-            skorlar = f.readlines()
-        
-        if not skorlar:
-            print("No scores yet! / Henüz skor yok!")
-        else:
-            # Skorları büyükten küçüğe sıralama işlemimiz
-            skor_listesi = []
-            for satir in skorlar:
-                parcalar = satir.strip().split(',')
-                if len(parcalar) > 2:
-                    skor_listesi.append((parcalar[0], int(parcalar[1]), parcalar[2]))
-            
-            # Skorları büyükten küçüğe sıralama işlemimiz
-            skor_listesi.sort(key=lambda x: x[1], reverse=True)
-            
-            print("\nSıra  Kullanıcı Adı    Skor    Son Oyun")
-            print("-" * 45)
-            for i, (kullanici, skor, tarih) in enumerate(skor_listesi, 1):
-                print(f"{i:<5} {kullanici:<15} {skor:<8} {tarih}")
-    except Exception as e:
-        print(f"An error occurred! / Bir hata oluştu! Hata: {str(e)}")
+        print("Draw!")
+        update_score(username, 0)
     
     input("\nPress Enter to continue...")
-    musteri_minigame_menu(kullanici_adi)
+    customer_menu(username)
 
-# Admin login menu
-# Admin giriş menüsü
-def admin_giris_menu():
-    temizle()
-    print("\n--- Admin Login / Admin Girişi ---")
-    admin_adi = input("Admin Name (Admin Adı): ")
-    sifre = input("Password (Şifre): ")
+def update_score(username, result):
+    try:
+        with open(file_dict['scoreboard'], 'r', encoding='utf-8') as f:
+            scores = f.readlines()
+    except:
+        scores = []
+    
+    new_scores = []
+    found = False
+    
+    for line in scores:
+        parts = line.strip().split(',')
+        if len(parts) > 2 and parts[0] == username:
+            score = int(parts[1]) + result
+            date = datetime.datetime.now().strftime('%Y-%m-%d')
+            new_scores.append(f"{username},{score},{date}\n")
+            found = True
+        else:
+            new_scores.append(line)
+    
+    if not found:
+        date = datetime.datetime.now().strftime('%Y-%m-%d')
+        new_scores.append(f"{username},{result},{date}\n")
+    
+    with open(file_dict['scoreboard'], 'w', encoding='utf-8') as f:
+        for line in new_scores:
+            f.write(line)
+
+def customer_minigame_scoreboard(username):
+    clear()
+    print("\n--- Minigame Scoreboard ---")
+    try:
+        with open(file_dict['scoreboard'], 'r', encoding='utf-8') as f:
+            scores = f.readlines()
+        
+        if not scores:
+            print("No scores yet!")
+        else:
+            # Sort scores from highest to lowest
+            score_list = []
+            for line in scores:
+                parts = line.strip().split(',')
+                if len(parts) > 2:
+                    score_list.append((parts[0], int(parts[1]), parts[2]))
+            
+            # Sort scores from highest to lowest
+            score_list.sort(key=lambda x: x[1], reverse=True)
+            
+            print("\nRank  Username        Score    Last Game")
+            print("-" * 45)
+            for i, (user, score, date) in enumerate(score_list, 1):
+                print(f"{i:<5} {user:<15} {score:<8} {date}")
+    except Exception as e:
+        print(f"An error occurred! Error: {str(e)}")
+    
+    input("\nPress Enter to continue...")
+    customer_minigame_menu(username)
+
+def admin_login_menu():
+    clear()
+    print("\n--- Admin Login ---")
+    admin_name = input("Admin Name: ")
+    password = input("Password: ")
     
     try:
-        with open(dosya_dict['admin'], 'r', encoding='utf-8') as f:
-            satirlar = f.readlines()
+        with open(file_dict['admin'], 'r', encoding='utf-8') as f:
+            lines = f.readlines()
         
-        giris_basarili = False
-        for satir in satirlar:
-            bilgiler = satir.strip().split(',')
-            if len(bilgiler) >= 2:  # En az 2 bilgi olmalı (admin adı ve şifre)
-                if bilgiler[0] == admin_adi and bilgiler[1] == sifre:
-                    giris_basarili = True
+        login_successful = False
+        for line in lines:
+            info = line.strip().split(',')
+            if len(info) >= 2:  # At least 2 pieces of info (admin name and password)
+                if info[0] == admin_name and info[1] == password:
+                    login_successful = True
                     break
         
-        if giris_basarili:
-            print("Admin login successful! / Admin girişi başarılı!")
-            islem_sonrasi_bekle()
-            admin_menu(admin_adi)
+        if login_successful:
+            print("Admin login successful!")
+            wait_after_operation()
+            admin_menu(admin_name)
         else:
-            print("Wrong admin name or password! / Hatalı admin adı veya şifre!")
-            islem_sonrasi_bekle()
-            ana_menu()
+            print("Wrong admin name or password!")
+            wait_after_operation()
+            main_menu()
     except Exception as e:
-        print(f"An error occurred! / Bir hata oluştu! Hata: {str(e)}")
-        islem_sonrasi_bekle()
-        ana_menu()
+        print(f"An error occurred! Error: {str(e)}")
+        wait_after_operation()
+        main_menu()
 
-# Admin menu (to be developed)
-# Admin menüsü (geliştirilecek)
-def admin_menu(admin_adi):
-    temizle()
-    print(f"\n--- Admin Menu for {admin_adi} / {admin_adi} için Admin Menüsü ---")
-    print("1. Most Purchased (En Çok Alınanlar)")
-    print("2. View/Update Stock (Stokları Görüntüle/Güncelle)")
-    print("3. Expiry/Decay Tracking (Çürüme/SKT Takibi)")
-    print("0. Back (Geri)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        admin_en_cok_alinanlar()
-    elif secim == '2':
-        admin_stok_goruntule_guncelle()
-    elif secim == '3':
-        admin_urun_curume_takip()
-    elif secim == '0':
-        ana_menu()
+def admin_menu(admin_name):
+    clear()
+    print(f"\n--- Admin Menu for {admin_name} ---")
+    print("1. Most Purchased")
+    print("2. View/Update Stock")
+    print("3. Expiry/Decay Tracking")
+    print("0. Back")
+    choice = input("Select an option: ")
+    if choice == '1':
+        admin_most_purchased()
+    elif choice == '2':
+        admin_view_update_stock()
+    elif choice == '3':
+        admin_product_decay_tracking()
+    elif choice == '0':
+        main_menu()
     else:
-        print("Invalid selection! / Geçersiz seçim!")
+        print("Invalid selection!")
         input("\nPress Enter to continue...")
-        admin_menu(admin_adi)
+        admin_menu(admin_name)
 
-# Admin most purchased function
-# Admin en çok alınanlar fonksiyonu
-def admin_en_cok_alinanlar():
-    temizle()
-    print("\n--- Most Purchased Products / En Çok Alınan Ürünler ---")
-    urun_sayac = {}
-    with open(dosya_dict['purchases'], 'r', encoding='utf-8') as f:
-        alisverisler = f.readlines()
-    for satir in alisverisler:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 3:
-            urun = parcalar[1]
-            adet = int(parcalar[2])
-            if urun in urun_sayac:
-                urun_sayac[urun] += adet
+def admin_most_purchased():
+    clear()
+    print("\n--- Most Purchased Products ---")
+    product_counter = {}
+    with open(file_dict['purchases'], 'r', encoding='utf-8') as f:
+        purchases = f.readlines()
+    for line in purchases:
+        parts = line.strip().split(',')
+        if len(parts) > 3:
+            product = parts[1]
+            quantity = int(parts[2])
+            if product in product_counter:
+                product_counter[product] += quantity
             else:
-                urun_sayac[urun] = adet
+                product_counter[product] = quantity
     
-    # Majority vote ile sıralama
-    sirali = sorted(urun_sayac.items(), key=lambda x: x[1], reverse=True)
+    # Sort by majority vote
+    sorted_products = sorted(product_counter.items(), key=lambda x: x[1], reverse=True)
     
-    print("\nEn Çok Alınan Ürünler (Sıralı):")
+    print("\nMost Purchased Products (Sorted):")
     print("-" * 40)
-    for i, (urun, adet) in enumerate(sirali, 1):
-        print(f"{i}. {urun}: {adet} adet")
+    for i, (product, quantity) in enumerate(sorted_products, 1):
+        print(f"{i}. {product}: {quantity} units")
     
-    # Bu sıralamayı stok dosyasına kaydet
-    with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-        stoklar = f.readlines()
+    # Save this ranking to stock file
+    with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+        stocks = f.readlines()
     
-    yeni_stoklar = []
-    for satir in stoklar:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 2:
-            urun = parcalar[1]
-            # Sıralama bilgisini ekle
-            siralama = next((i for i, (u, _) in enumerate(sirali, 1) if u == urun), 0)
-            if siralama > 0:
-                parcalar.append(str(siralama))
-            yeni_stoklar.append(','.join(parcalar) + '\n')
+    new_stocks = []
+    for line in stocks:
+        parts = line.strip().split(',')
+        if len(parts) > 2:
+            product = parts[1]
+            # Add ranking information
+            ranking = next((i for i, (p, _) in enumerate(sorted_products, 1) if p == product), 0)
+            if ranking > 0:
+                parts.append(str(ranking))
+            new_stocks.append(','.join(parts) + '\n')
         else:
-            yeni_stoklar.append(satir)
+            new_stocks.append(line)
     
-    with open(dosya_dict['stock'], 'w', encoding='utf-8') as f:
-        for satir in yeni_stoklar:
-            f.write(satir)
+    with open(file_dict['stock'], 'w', encoding='utf-8') as f:
+        for line in new_stocks:
+            f.write(line)
     
     input("\nPress Enter to continue...")
     admin_menu('admin')
 
-# Admin storage function
-# depo fonksiyonu
-def admin_stok_goruntule_guncelle():
-    temizle()
-    print("\n--- View/Update Stock / Stokları Görüntüle/Güncelle ---")
-    print("1. View Stock (Stokları Görüntüle)")
-    print("2. Update Stock (Stokları Güncelle)")
-    print("0. Back (Geri)")
-    secim = input("Select an option (Bir seçenek seçin): ")
-    if secim == '1':
-        print("\nCurrent Stock / Mevcut Stok:")
-        with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-            stoklar = f.readlines()
-        if not stoklar:
-            print("Stok listesi boş! / Stock list is empty!")
+def admin_view_update_stock():
+    clear()
+    print("\n--- View/Update Stock ---")
+    print("1. View Stock")
+    print("2. Update Stock")
+    print("0. Back")
+    choice = input("Select an option: ")
+    if choice == '1':
+        print("\nCurrent Stock:")
+        with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+            stocks = f.readlines()
+        for line in stocks:
+            parts = line.strip().split(',')
+            if len(parts) > 2:
+                print(f"Product: {parts[1]}, Stock: {parts[2]}")
+    elif choice == '2':
+        print("\nUpdate Stock:")
+        product = input("Enter product name: ")
+        quantity = input("Enter new stock quantity: ")
+        if not quantity.isdigit() or int(quantity) < 0:
+            print("Invalid stock format!")
+            input("\nPress Enter to continue...")
+            admin_menu('admin')
+            return
+        quantity = int(quantity)
+        new_stocks = []
+        with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+            stocks = f.readlines()
+        product_found = False
+        for line in stocks:
+            parts = line.strip().split(',')
+            if len(parts) > 2 and parts[1] == product:
+                parts[2] = str(quantity)
+                product_found = True
+            new_stocks.append(','.join(parts) + '\n')
+        if not product_found:
+            print(f"\nProduct not found!")
         else:
-            for satir in stoklar:
-                parcalar = satir.strip().split(',')
-                if len(parcalar) > 2:
-                    print(f"Product: {parcalar[1]}, Stock: {parcalar[2]} / Ürün: {parcalar[1]}, Stok: {parcalar[2]}")
-    elif secim == '2':
-        print("\nUpdate Stock / Stokları Güncelle:")
-        urun = input("Enter product name (Ürün adı girin): ").strip()
-        if not urun.strip():
-            print("Ürün adı boş olamaz! / Product name cannot be empty!")
-            input("\nPress Enter to continue...")
-            admin_stok_goruntule_guncelle()
-            return
-
-        miktar = input("Enter new stock quantity (Yeni stok miktarı girin): ")
-        if not miktar.isdigit():
-            print("Stok miktarı sayısal bir değer olmalıdır! / Stock quantity must be a numeric value!")
-            input("\nPress Enter to continue...")
-            admin_stok_goruntule_guncelle()
-            return
-
-        miktar = int(miktar)
-        if miktar < 0:
-            print("Stok miktarı negatif olamaz! / Stock quantity cannot be negative!")
-            input("\nPress Enter to continue...")
-            admin_stok_goruntule_guncelle()
-            return
-
-        yeni_stoklar = []
-        with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-            stoklar = f.readlines()
-        urun_bulundu = False
-        for satir in stoklar:
-            parcalar = satir.strip().split(',')
-            if len(parcalar) > 2 and parcalar[1] == urun:
-                parcalar[2] = str(miktar)
-                urun_bulundu = True
-            yeni_stoklar.append(','.join(parcalar) + '\n')
-        if not urun_bulundu:
-            print(f"\nÜrün bulunamadı! Lütfen ürün adını doğru yazdığınızdan emin olun. / Product not found! Please make sure you typed the product name correctly.")
-        else:
-            with open(dosya_dict['stock'], 'w', encoding='utf-8') as f:
-                for satir in yeni_stoklar:
-                    f.write(satir)
-            print(f"\nStok başarıyla güncellendi! / Stock updated successfully!")
-            print(f"Ürün: {urun}, Yeni Stok: {miktar} / Product: {urun}, New Stock: {miktar}")
-    elif secim == '0':
+            with open(file_dict['stock'], 'w', encoding='utf-8') as f:
+                for line in new_stocks:
+                    f.write(line)
+            print(f"\nStock updated successfully!")
+    elif choice == '0':
         admin_menu('admin')
         return
     else:
-        print("Geçersiz seçim! Lütfen 0, 1 veya 2 girin. / Invalid selection! Please enter 0, 1, or 2.")
-    
-    input("\nDevam etmek için Enter'a basın... / Press Enter to continue...")
-    admin_stok_goruntule_guncelle()
+        print("Invalid selection!")
+    input("\nPress Enter to continue...")
+    admin_view_update_stock()
 
-# Çürüme takibi fonksiyonu
-def admin_urun_curume_takip():
-    temizle()
-    print("\n--- Expiry/Decay Tracking / Çürüme/SKT Takibi ---")
+def admin_product_decay_tracking():
+    clear()
+    print("\n--- Expiry/Decay Tracking ---")
     
     try:
-        with open(dosya_dict['stock'], 'r', encoding='utf-8') as f:
-            stoklar = f.readlines()
+        with open(file_dict['stock'], 'r', encoding='utf-8') as f:
+            stocks = f.readlines()
     except:
-        print("Stok verisi bulunamadı! / No stock data found!")
-        islem_sonrasi_bekle()
+        print("No stock data found!")
+        wait_after_operation()
         admin_menu('admin')
         return
     
-    # Ürün çürüme süreleri (gün)
-    curume_sureleri = {
-        'Elma': 30,
-        'Muz': 7,
-        'Portakal': 14,
-        'Domates': 5,
-        'Salatalık': 7
+    # Product decay periods (days)
+    decay_periods = {
+        'Apple': 30,
+        'Banana': 7,
+        'Orange': 14,
+        'Tomato': 5,
+        'Cucumber': 7
     }
     
-    bugun = datetime.datetime.now().date()
-    uyarili_urunler = []
+    today = datetime.datetime.now().date()
+    warning_products = []
     
-    print("\nÇürüme Takibi:")
+    print("\nDecay Tracking:")
     print("-" * 60)
-    print(f"{'Ürün':<15} {'Miktar':<10} {'Çürüme Tarihi':<15} {'Kalan Gün':<10}")
+    print(f"{'Product':<15} {'Quantity':<10} {'Decay Date':<15} {'Days Left':<10}")
     print("-" * 60)
     
-    for satir in stoklar:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 2:
-            urun = parcalar[1]
-            miktar = int(parcalar[2])
+    for line in stocks:
+        parts = line.strip().split(',')
+        if len(parts) > 2:
+            product = parts[1]
+            quantity = int(parts[2])
             
-            if urun in curume_sureleri:
-                curume_suresi = curume_sureleri[urun]
-                curume_tarihi = bugun + datetime.timedelta(days=curume_suresi)
-                kalan_gun = (curume_tarihi - bugun).days
+            if product in decay_periods:
+                decay_period = decay_periods[product]
+                decay_date = today + datetime.timedelta(days=decay_period)
+                days_left = (decay_date - today).days
                 
-                print(f"{urun:<15} {miktar:<10} {curume_tarihi.strftime('%Y-%m-%d'):<15} {kalan_gun:<10}")
+                print(f"{product:<15} {quantity:<10} {decay_date.strftime('%Y-%m-%d'):<15} {days_left:<10}")
                 
-                if kalan_gun <= 3:
-                    uyarili_urunler.append((urun, miktar, curume_tarihi, kalan_gun))
+                if days_left <= 3:
+                    warning_products.append((product, quantity, decay_date, days_left))
     
-    if uyarili_urunler:
-        print("\nUYARI: Aşağıdaki ürünler yakında çürüyecek!")
-        for urun, miktar, tarih, gun in uyarili_urunler:
-            print(f"{urun}: {miktar} adet - {gun} gün kaldı!")
+    if warning_products:
+        print("\nWARNING: The following products will decay soon!")
+        for product, quantity, date, days in warning_products:
+            print(f"{product}: {quantity} units - {days} days left!")
     else:
-        print("\nTüm ürünler taze!")
+        print("\nAll products are fresh!")
     
-    islem_sonrasi_bekle()
+    wait_after_operation()
     admin_menu('admin')
 
-# Programı başlat
 # Start the program
-ana_menu()
+main_menu()
