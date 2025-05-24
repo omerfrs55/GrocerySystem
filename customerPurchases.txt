@@ -8,3 +8,5 @@ mehmet123,Portakal,4,40
 fatma123,Domates,2,40
 ali123,Salatalık,3,45
 omerfrs55,Portakal,25,1875
+omerfrs55,Domates,2,400
+omerfrs55,Salatalık,3,450

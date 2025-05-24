@@ -1,196 +1,151 @@
-# 🛒 Market ve Depo Otomasyon Sistemi
+# 🛒 Grocery System (Market Sistemi)
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Python-3.8+-blue?logo=python" alt="Python Version">
-  <img src="https://img.shields.io/badge/Status-Active-brightgreen" alt="Status">
+  <img src="https://img.shields.io/badge/Python-3.x-blue" alt="Python Version">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </div>
 
+## 📋 İçindekiler
+- [Proje Hakkında](#-proje-hakkında)
+- [Kullanılan Teknolojiler](#-kullanılan-teknolojiler)
+- [Veri Yapıları ve Algoritmalar](#-veri-yapıları-ve-algoritmalar)
+- [Güvenlik](#-güvenlik)
+- [Oyun Mantığı](#-oyun-mantığı)
+- [Kurulum](#-kurulum)
+- [Kullanım](#-kullanım)
 
-  <p><em>Python tabanlı terminal uygulaması | Eğitim amaçlı proje</em></p>
+## 🎯 Proje Hakkında
+Bu proje, bir market yönetim sistemi simülasyonudur. Müşteri ve yönetici arayüzleri, stok takibi, kupon sistemi ve mini oyun özellikleri içerir.
 
----
+## 🛠 Kullanılan Teknolojiler
+- **Python 3.x**: Ana programlama dili
+- **cryptography**: Şifreleme işlemleri için
+- **datetime**: Tarih/saat işlemleri için
+- **os**: Terminal temizleme işlemleri için
 
-## 📌 Türkçe Açıklama
+## 📊 Veri Yapıları ve Algoritmalar
 
-### 🎯 Özellikler
-
-<ul>
-  <li>Müşteri, Admin ve Kasiyer Menüsü</li>
-  <li>Müşteri Kaydı ve Girişi</li>
-  <li>Alışveriş ve Bakiye Yönetimi</li>
-  <li>Kupon Sistemi</li>
-  <li>Stok ve Ürün Yönetimi</li>
-  <li>Depo Yerleşimi ve Kısa Yol Algoritması</li>
-  <li>Ürün Çürüme / SKT Takibi</li>
-  <li>Denetim ve Hırsızlık Kontrolü</li>
-  <li>Mini Oyun ve Skor Tablosu</li>
-  <li>Satış İstatistikleri ve Raporlama</li>
-</ul>
-
----
-
-### ⚙️ Kurulum
-
-<ul>
-  <li>Python 3 yüklü olmalı.</li>
-  <li>Proje klasöründe aşağıdaki dosyalar oluşturulmalı:</li>
-</ul>
-
+### Dictionary (Sözlük) Kullanımı
+```python
+dosya_dict = {
+    'customer': 'customerRegister.txt',
+    'admin': 'adminRegister.txt',
+    'scoreboard': 'scoreboard.txt',
+    'stock': 'stockproducts.txt',
+    'coupons': 'coupons.txt',
+    'purchases': 'customerPurchases.txt'
+}
 ```
-customerRegister.txt  
-adminRegister.txt  
-scoreboard.txt  
-stockproducts.txt  
-coupons.txt  
-customerPurchases.txt
+- **Kullanım Amacı**: Dosya yollarını organize etmek ve yönetmek
+- **Avantajları**: 
+  - Kolay erişim
+  - Merkezi yönetim
+  - Kod tekrarını önleme
+
+### Minimax Algoritması
+```python
+def minimax(self, depth, is_maximizing):
+    if self.check_winner():
+        if self.winner == '🍎':
+            return -1
+        elif self.winner == '🍌':
+            return 1
+        else:
+            return 0
+```
+- **Kullanım Yeri**: Tic-tac-toe oyununda bilgisayar hamlesi
+- **Amacı**: En iyi hamleyi seçmek
+- **Çalışma Mantığı**: 
+  - Derinlik öncelikli arama
+  - Olası tüm hamleleri değerlendirme
+  - En iyi sonucu seçme
+
+### Majority Vote (Çoğunluk Oylaması)
+```python
+sirali = sorted(urun_sayac.items(), key=lambda x: x[1], reverse=True)
+```
+- **Kullanım Yeri**: En çok satılan ürünleri belirleme
+- **Amacı**: Ürün popülerliğini ölçme
+- **İşleyiş**: 
+  - Satış sayılarını toplama
+  - Büyükten küçüğe sıralama
+  - Sıralama bilgisini stok dosyasına kaydetme
+
+### TimeSort
+```python
+skor_listesi.sort(key=lambda x: x[1], reverse=True)
+```
+- **Kullanım Yeri**: Skor tablosu sıralaması
+- **Amacı**: Skorları büyükten küçüğe sıralama
+- **Özellikler**: 
+  - Python'un yerleşik sıralama algoritması
+  - O(n log n) karmaşıklık
+
+## 🔒 Güvenlik
+
+### Cryptography Kullanımı
+```python
+from cryptography.fernet import Fernet
+key = Fernet.generate_key()
+cipher = Fernet(key)
+```
+- **Kullanım Amacı**: Kullanıcı şifrelerini güvenli şekilde saklama
+- **Özellikler**:
+  - Simetrik şifreleme
+  - Güvenli anahtar üretimi
+  - Şifreli veri saklama
+
+## 🎮 Oyun Mantığı
+
+### Class Yapısı
+```python
+class TicTacToe:
+    def __init__(self):
+        self.board = [[' ' for _ in range(3)] for _ in range(3)]
+        self.current_player = '🍎'
+        self.winner = None
+        self.game_over = False
+```
+- **Kullanım Amacı**: Tic-tac-toe oyununu yönetme
+- **Özellikler**:
+  - Oyun tahtası yönetimi
+  - Oyuncu sırası takibi
+  - Kazanan kontrolü
+  - Oyun durumu yönetimi
+
+## 💻 Kurulum
+
+1. Python 3.x'i yükleyin
+2. Gerekli kütüphaneleri yükleyin:
+```bash
+pip install cryptography
+```
+3. Projeyi klonlayın:
+```bash
+git clone https://github.com/kullanici/grocery-system.git
 ```
 
----
+## 🚀 Kullanım
 
-### ▶️ Kullanım
-
-Terminalde çalıştırmak için:
-
-```
+1. Programı başlatın:
+```bash
 python Grocery.py
 ```
 
----
+2. Menüden seçim yapın:
+   - Müşteri Menüsü
+   - Yönetici Menüsü
 
-## 🔧 Fonksiyonlar ve Açıklamaları
+### Müşteri Özellikleri
+- Alışveriş yapma
+- Kupon kullanma
+- Mini oyun oynama
+- Skor tablosunu görüntüleme
 
-### 🔁 Genel Akış
+### Yönetici Özellikleri
+- Stok yönetimi
+- En çok satılan ürünleri görüntüleme
+- Çürüme takibi
 
-- **ana_menu()** – Rol seçimi ve yönlendirme menüsü  
-- **kasiyer_menu()** – Yeni müşteri kaydı  
-- **musteri_giris_menu()** – Müşteri girişi  
-- **admin_giris_menu()** – Admin girişi
-
-### 👤 Müşteri Fonksiyonları
-
-- **musteri_menu(kullanici_adi)** – Ana müşteri işlemleri menüsü  
-- **musteri_alisveris_menu(kullanici_adi)** – Ürün seçimi, kupon, bakiye ve alışveriş kaydı  
-- **musteri_kupon_goruntule(kullanici_adi)** – Kupon görüntüleme  
-- **musteri_bakiye_yukle(kullanici_adi)** – Bakiye yükleme  
-- **musteri_alisveris_gecmisi(kullanici_adi)** – Alışveriş geçmişi görüntüleme
-
-### 🎮 Mini Oyun
-
-- **musteri_minigame_menu(kullanici_adi)** – Oyun ve skor tablosu  
-- **musteri_minigame_oyna(kullanici_adi)** – Elma > Muz, Muz > Portakal, Portakal > Elma  
-- **skor_guncelle(kullanici_adi, sonuc)** – Skor güncelleme  
-- **musteri_minigame_scoreboard()** – Skor tablosu görüntüleme
-
-### 🎫 Kupon Sistemi
-
-- Kuponlar `coupons.txt` dosyasında saklanır  
-- Alışveriş sırasında indirim sağlar  
-- Kullanıldıktan sonra sistemden silinir  
-- Admin manuel olarak kupon tanımlayabilir
-
-### 📦 Stok ve Ürün Yönetimi
-
-- **admin_stok_goruntule_guncelle()** – Stok görüntüleme ve güncelleme  
-- **admin_toptanci_siparis()** – Toptancıdan ürün siparişi
-
-### 🗺️ Depo Yerleşimi ve Kısa Yol
-
-- **admin_depo_yerlesim()** – 5x5 matris yerleşimi  
-- **admin_depo_kisayol()** – Manhattan algoritması ile en kısa yol
-
-### 🧪 Ürün Çürüme/SKT Takibi
-
-- **admin_urun_curume_takip()** – SKT kontrolü ve uyarılar
-
-### 🕵️‍♂️ Denetim ve Hırsızlık Kontrolü
-
-- **admin_denetim_hirsizlik()** – Stok ve satış verilerinin MD5 hash ile karşılaştırılması
-
-### 📊 Satış İstatistikleri
-
-- **admin_satis_istatistik()** – En çok satılan ürünler ve miktarları
-
----
-
-## 🧠 Algoritmalar ve Özel Kodlar
-
-### ➡️ Manhattan Shortest Path
-
-- Depodaki ürüne en kısa yolu bulur  
-- Yalnızca yukarı/aşağı/sağa/sola hareket izni  
-- Kullanım: `admin_depo_kisayol()`
-
-### 🔐 Hashing (MD5)
-
-- Stok ve satış verilerinin bütünlüğünü sağlar  
-- Kullanım: `admin_denetim_hirsizlik()`
-
-### 🎯 Minigame
-
-- Elma > Muz, Muz > Portakal, Portakal > Elma  
-- Skor güncellemesi ve kupon ödülleri  
-- Kullanım: `musteri_minigame_oyna()` ve `skor_guncelle()`
-
----
-
-## 🌐 English Description
-
-<details>
-<summary>Click to expand</summary>
-
-### Features
-
-- Customer, Admin, and Cashier Menus  
-- Customer Registration and Login  
-- Shopping and Balance Management  
-- Coupon System  
-- Stock and Product Management  
-- Warehouse Layout and Shortest Path Algorithm  
-- Product Expiry/Decay Tracking  
-- Audit and Theft Control  
-- Minigame and Scoreboard  
-- Sales Statistics and Reporting  
-
-### Installation
-
-- Python 3 must be installed  
-- Create the following files:
-
-```
-customerRegister.txt  
-adminRegister.txt  
-scoreboard.txt  
-stockproducts.txt  
-coupons.txt  
-customerPurchases.txt
-```
-
-### Usage
-
-To run in terminal:
-```
-python Grocery.py
-```
-
-</details>
-
----
-
-## 📝 Lisans / License
-
-Bu proje eğitim amaçlıdır.  
-This project is for educational purposes only.
-
----
-
-## 📬 PROJE SAHİPLERİ:
-
-PROJE SAHİPLERİ:  
-ÖMER FARUK SAĞLAM
-SAMET ERDOĞAN
-
----
-
-<div align="center">
-  <strong>Teşekkürler! / Thank You!</strong>  
-</div>
+## 📝 Lisans
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
