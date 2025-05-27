@@ -171,19 +171,35 @@ def musteri_menu(kullanici_adi):
 # Müşteri kuponlarını görüntüleme fonksiyonu
 def musteri_kupon_goruntule(kullanici_adi):
     temizle()
-    print("\n--- Your Coupons / Kuponlarınız ---")
+    print(f"\n--- {kullanici_adi} için Kuponlarınız / Your Coupons for {kullanici_adi} ---")
     bulundu = False
-    with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
-        kuponlar = f.readlines()
-    for satir in kuponlar:
-        parcalar = satir.strip().split(',')
-        if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
-            print(f"Coupon: %{parcalar[1]} discount / Kupon: %{parcalar[1]} indirim")
-            bulundu = True
-    if not bulundu:
-        print("No active coupons found! / Aktif kuponunuz bulunmamaktadır!")
+    try:
+        with open(dosya_dict['coupons'], 'r', encoding='utf-8') as f:
+            kuponlar = f.readlines()
+        
+        print("\nAktif Kuponlarınız / Your Active Coupons:")
+        print("-" * 50)
+        kupon_sayisi = 0
+        for satir in kuponlar:
+            parcalar = satir.strip().split(',')
+            if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
+                kupon_sayisi += 1
+                print(f"Kupon #{kupon_sayisi}")
+                print(f"İndirim Oranı / Discount Rate: %{parcalar[1]}")
+                print(f"Kazanma Tarihi / Earned Date: {parcalar[2]}")
+                print("-" * 50)
+                bulundu = True
+        
+        if bulundu:
+            print(f"\nToplam {kupon_sayisi} adet kuponunuz bulunmaktadır.")
+    except Exception as e:
+        print(f"Kuponlar okunurken bir hata oluştu! / Error reading coupons! Hata: {str(e)}")
     
-    input("\nPress Enter to continue...")
+    if not bulundu:
+        print("Aktif kuponunuz bulunmamaktadır! / No active coupons found!")
+        print("Mini oyunu oynayarak kupon kazanabilirsiniz! / You can earn coupons by playing the minigame!")
+    
+    input("\nDevam etmek için Enter'a basın... / Press Enter to continue...")
     musteri_menu(kullanici_adi)
 
 # Shopping menu for customer
@@ -469,7 +485,7 @@ def musteri_minigame_oyna(kullanici_adi):
             kuponlar = f.readlines()
         for satir in kuponlar:
             parcalar = satir.strip().split(',')
-            if len(parcalar) > 2 and parcalar[0] == kullanici_adi:
+            if len(parcalar) > 1 and parcalar[0] == kullanici_adi:
                 try:
                     son_kupon_tarihi = datetime.datetime.strptime(parcalar[2], '%Y-%m-%d')
                 except Exception as e:
@@ -486,12 +502,20 @@ def musteri_minigame_oyna(kullanici_adi):
             kupon_kazanabilir = False
             print(f"\nSon kuponunuzdan bu yana {gecen_gun} gün geçti. Yeni kupon için {14-gecen_gun} gün daha beklemelisiniz.")
 
+    # Başlangıç oyuncusunu seçme
+    print("\nKim başlasın? / Who should start?")
+    print("1. Ben (I)")
+    print("2. Bilgisayar (Computer)")
+    baslangic_secimi = input("Seçiminiz / Your choice (1/2): ")
+    
     class TicTacToe:
         def __init__(self):
             self.board = [[' ' for _ in range(3)] for _ in range(3)]
-            self.current_player = '🍎'  # EN: Set first player as Apple // TR: İlk oyuncuyu Elma olarak ayarla
+            # Başlangıç oyuncusunu ayarla
+            self.current_player = '🍎' if baslangic_secimi == '1' else '🍌'  # EN: Set first player based on user choice // TR: İlk oyuncuyu kullanıcı seçimine göre ayarla
             self.winner = None  # EN: Initialize winner as None // TR: Kazananı None olarak başlat
             self.game_over = False  # EN: Initialize game state as not over // TR: Oyun durumunu bitmemiş olarak başlat
+            self.zorluk = 0.7  # EN: Computer difficulty (0-1) // TR: Bilgisayar zorluğu (0-1)
         
         def print_board(self):
             print("\n")
@@ -552,7 +576,11 @@ def musteri_minigame_oyna(kullanici_adi):
                             self.board[i][j] = '🍌'
                             score = self.minimax(depth + 1, False)
                             self.board[i][j] = ' '
-                            best_score = max(score, best_score)
+                            # Rastgelelik ekle
+                            if random.random() < self.zorluk:
+                                best_score = max(score, best_score)
+                            else:
+                                best_score = min(score, best_score)
                 return best_score
             else:
                 best_score = float('inf')
@@ -562,12 +590,16 @@ def musteri_minigame_oyna(kullanici_adi):
                             self.board[i][j] = '🍎'
                             score = self.minimax(depth + 1, True)
                             self.board[i][j] = ' '
-                            best_score = min(score, best_score)
+                            # Rastgelelik ekle
+                            if random.random() < self.zorluk:
+                                best_score = min(score, best_score)
+                            else:
+                                best_score = max(score, best_score)
                 return best_score
         
         def get_best_move(self):
             best_score = float('-inf')
-            best_move = None
+            best_moves = []  # EN: List to store all best moves // TR: Tüm en iyi hamleleri saklamak için liste
             
             for i in range(3):
                 for j in range(3):
@@ -578,9 +610,12 @@ def musteri_minigame_oyna(kullanici_adi):
                         
                         if score > best_score:
                             best_score = score
-                            best_move = (i, j)
+                            best_moves = [(i, j)]
+                        elif score == best_score:
+                            best_moves.append((i, j))
             
-            return best_move
+            # En iyi hamleler arasından rastgele seç
+            return random.choice(best_moves) if best_moves else None
     
     oyun = TicTacToe()
     kazanma_sayisi = 0
@@ -665,6 +700,7 @@ def musteri_minigame_oyna(kullanici_adi):
             with open(dosya_dict['coupons'], 'a', encoding='utf-8') as f:
                 f.write(f"{kullanici_adi},{kupon_oran},{bugun}\n")
             print(f"\nTebrikler! %{kupon_oran} indirim kuponu kazandınız!")
+            print("Kuponunuzu 'Kuponlar' menüsünden görüntüleyebilirsiniz.")
         else:
             print("\nPuanınız bir arttı!")
     elif oyun.winner == '🍌':
