@@ -60,16 +60,16 @@ def minimax(self, depth, is_maximizing):
   - Olası tüm hamleleri değerlendirme
   - En iyi sonucu seçme
 
-### Majority Vote (Çoğunluk Oylaması)
+### Majority Vote Benzeri Sistemimimiz (Kişiselleştirilmiş Majority Vote)
 ```python
-sirali = sorted(urun_sayac.items(), key=lambda x: x[1], reverse=True)
+siralanan_sebzeler = []
+        for sebze in sebzeler:
+            adet = kullanici_alisveris.get(sebze, 0)
+            siralanan_sebzeler.append((sebze, adet))
+        siralanan_sebzeler.sort(key=lambda x: x[1], reverse=True)
 ```
-- **Kullanım Yeri**: En çok satılan ürünleri belirleme
-- **Amacı**: Ürün popülerliğini ölçme
-- **İşleyiş**: 
-  - Satış sayılarını toplama
-  - Büyükten küçüğe sıralama
-  - Sıralama bilgisini stok dosyasına kaydetme
+- **Kullanım Yeri**: Kişinin en çok aldığı ürünleri belirleme
+- **Amacı**: Ürün popülerliğini ölçüp kullanıcıya sunma
 
 ### TimeSort
 ```python
