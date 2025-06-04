@@ -147,5 +147,6 @@ python Grocery.py
 - En çok satılan ürünleri görüntüleme
 - Çürüme takibi
 
-## 📝 Lisans
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+## 📝 Yapımcılar
+Ömer Faruk SAĞLAM
+Samet ERDOĞAN
